@@ -7,12 +7,12 @@
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <style>
         :root {
-            --primary-color: #007bff;
-            --secondary-color: #6c757d;
-            --background-color: #1a1a1a;
-            --text-color: #ffffff;
+            --primary-color: #4CAF50;
+            --secondary-color: #f0f0f0;
+            --background-color: #ffffff;
+            --text-color: #333333;
             --border-radius: 8px;
-            --box-shadow: 0 4px 6px rgba(0, 123, 255, 0.1);
+            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
 
         body {
@@ -32,15 +32,13 @@
             text-align: center;
             margin-bottom: 2rem;
             font-size: 2.5rem;
-            text-shadow: 0 0 10px rgba(0, 123, 255, 0.5);
         }
 
         #lotteryForm {
-            background: rgba(255, 255, 255, 0.1);
+            background: var(--secondary-color);
             padding: 2rem;
             border-radius: var(--border-radius);
             box-shadow: var(--box-shadow);
-            backdrop-filter: blur(10px);
             width: 100%;
             max-width: 500px;
         }
@@ -58,7 +56,7 @@
             margin-bottom: 1.5rem;
             border: 2px solid var(--primary-color);
             border-radius: var(--border-radius);
-            background: rgba(255, 255, 255, 0.05);
+            background: #ffffff;
             color: var(--text-color);
             font-size: 1rem;
             transition: all 0.3s ease;
@@ -66,8 +64,7 @@
 
         select:focus, input:focus {
             outline: none;
-            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.3);
-            background: rgba(255, 255, 255, 0.1);
+            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.3);
         }
 
         button {
@@ -86,13 +83,34 @@
         }
 
         button:hover {
-            background: #0056b3;
+            background: #388E3C;
             transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(0, 123, 255, 0.2);
+            box-shadow: 0 6px 12px rgba(76, 175, 80, 0.2);
         }
 
         button:active {
             transform: translateY(0);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 2rem;
+        }
+
+        th, td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        tr:hover {
+            background: #f1f1f1;
         }
 
         /* RWD 設定 */
@@ -132,28 +150,6 @@
                 margin-bottom: 1rem;
             }
         }
-
-        /* 添加表格樣式 */
-        table {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: var(--border-radius);
-            backdrop-filter: blur(10px);
-        }
-
-        th, td {
-            padding: 1rem;
-            text-align: left;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        th {
-            background: var(--primary-color);
-            color: white;
-        }
-
-        tr:hover {
-            background: rgba(255, 255, 255, 0.05);
-        }
     </style>
 </head>
 <body>
@@ -162,7 +158,7 @@
         <label for="drawType">開獎類型:</label>
         <select id="drawType">
             <option value="2">大樂透</option>
-            <!-- 其他選 -->
+            <!-- 其他選項 -->
         </select>
         <br>
         <label for="drawYear">年份:</label>
@@ -175,7 +171,7 @@
     </form>
 
     <div id="resultArea" style="margin-top: 2rem; width: 100%; max-width: 500px;">
-        <table id="resultTable" style="width: 100%; border-collapse: collapse; display: none;">
+        <table id="resultTable" style="display: none;">
             <thead>
                 <tr>
                     <th>開獎日期</th>
@@ -219,19 +215,15 @@
                 data.forEach(item => {
                     const row = document.createElement('tr');
                     
-                    // 開獎日期
                     const dateCell = document.createElement('td');
                     dateCell.textContent = item.draw_date;
                     
-                    // 期數
                     const periodCell = document.createElement('td');
                     periodCell.textContent = item.period;
                     
-                    // 開獎號碼
                     const numbersCell = document.createElement('td');
                     numbersCell.textContent = item.draw_number_appear.join(', ');
                     
-                    // 兌獎期限
                     const redeemCell = document.createElement('td');
                     redeemCell.textContent = item.redeemable_date;
 
