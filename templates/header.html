@@ -1,0 +1,101 @@
+<header class="site-header">
+    <nav class="navbar">
+        <div class="container">
+            <a href="/" class="logo">
+                <span class="logo-text">大樂透</span>
+                <span class="logo-accent">查詢系統</span>
+            </a>
+            <ul class="nav-links">
+                <li><a href="/">首頁</a></li>
+                <li><a href="/lucky">試試手氣</a></li>
+                <li><a href="/">歷史紀錄</a></li>
+                <li><a href="/">關於我們</a></li>
+            </ul>
+        </div>
+    </nav>
+</header>
+
+<style>
+    .site-header {
+        background-color: var(--secondary-color);
+        padding: 1rem 0;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+        border-bottom: 2px solid var(--primary-color);
+    }
+
+    .navbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .logo {
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .logo-text {
+        color: var(--primary-color);
+        font-size: 1.8rem;
+        font-weight: bold;
+    }
+
+    .logo-accent {
+        color: var(--text-color);
+        font-size: 1.4rem;
+    }
+
+    .nav-links {
+        list-style: none;
+        display: flex;
+        gap: 2rem;
+        margin: 0;
+        padding: 0;
+    }
+
+    .nav-links a {
+        color: var(--text-color);
+        text-decoration: none;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        padding: 0.5rem 1rem;
+        border-radius: var(--border-radius);
+    }
+
+    .nav-links a:hover {
+        color: var(--primary-color);
+        background: rgba(212, 175, 55, 0.1);
+    }
+
+    @media (max-width: 768px) {
+        .logo-text {
+            font-size: 1.5rem;
+        }
+
+        .logo-accent {
+            font-size: 1.2rem;
+        }
+
+        .nav-links {
+            gap: 1rem;
+        }
+
+        .nav-links a {
+            padding: 0.3rem 0.6rem;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .navbar {
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .nav-links {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style> 

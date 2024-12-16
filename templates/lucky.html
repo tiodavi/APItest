@@ -1,0 +1,377 @@
+{% extends "base.html" %}
+
+{% block title %}試試手氣 - 大樂透{% endblock %}
+
+{% block content %}
+<div class="lucky-container fade-in">
+    <h1>試試手氣</h1>
+    
+    <div class="latest-numbers">
+        <h2>最新開獎號碼</h2>
+        <div class="number-display" id="latestNumbers">
+            <div class="number-group">
+                <p>一般號：<span id="regularNumbers">載入中...</span></p>
+                <p>特別號：<span id="specialNumber">載入中...</span></p>
+            </div>
+            <p class="draw-info">
+                期數：<span id="drawPeriod">載入中...</span><br>
+                開獎日期：<span id="drawDate">載入中...</span>
+            </p>
+        </div>
+    </div>
+
+    <div class="lucky-draw">
+        <h2>您的選號</h2>
+        <div class="number-display" id="yourNumbers">
+            <div class="number-balls" id="numberBalls">
+                <!-- 數字球將在這裡動態生成 -->
+            </div>
+        </div>
+        
+        <button id="drawButton" onclick="generateNumbers()">
+            <span class="button-text">立即抽號</span>
+            <span class="button-icon">🎲</span>
+        </button>
+    </div>
+
+    <div class="result-section" id="resultSection" style="display: none;">
+        <h2>中獎結果</h2>
+        <div class="draw-count">
+            抽號次數：<span id="drawCount">0</span>
+        </div>
+        <div class="result-display" id="resultDisplay">
+            <!-- 結果將在這裡顯示 -->
+        </div>
+    </div>
+</div>
+
+<style>
+    .lucky-container {
+        width: 100%;
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+
+    .latest-numbers, .lucky-draw, .result-section {
+        background: var(--secondary-color);
+        border-radius: var(--border-radius);
+        padding: 2rem;
+        margin-bottom: 2rem;
+        border: 1px solid var(--primary-color);
+        box-shadow: var(--box-shadow);
+    }
+
+    h2 {
+        color: var(--primary-color);
+        margin-bottom: 1.5rem;
+        font-size: 1.8rem;
+        text-align: center;
+    }
+
+    .number-display {
+        text-align: center;
+        margin: 1.5rem 0;
+    }
+
+    .number-group {
+        margin-bottom: 1rem;
+        font-size: 1.2rem;
+    }
+
+    .draw-info {
+        color: var(--text-color);
+        opacity: 0.8;
+        font-size: 0.9rem;
+        margin-top: 1rem;
+    }
+
+    .number-balls {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        justify-content: center;
+        margin: 2rem 0;
+    }
+
+    .ball {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: var(--primary-color);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        font-size: 1.2rem;
+        color: var(--secondary-color);
+        animation: popIn 0.5s ease-out;
+    }
+
+    @keyframes popIn {
+        0% { transform: scale(0); opacity: 0; }
+        70% { transform: scale(1.1); }
+        100% { transform: scale(1); opacity: 1; }
+    }
+
+    #drawButton {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 1rem;
+        margin: 2rem auto;
+        padding: 1rem 2rem;
+        font-size: 1.3rem;
+        background: linear-gradient(45deg, var(--primary-color), #e5c100);
+        border: none;
+        border-radius: var(--border-radius);
+        color: var(--secondary-color);
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    #drawButton:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 12px rgba(212, 175, 55, 0.3);
+        background: linear-gradient(45deg, #e5c100, var(--primary-color));
+    }
+
+    #drawButton:active {
+        transform: translateY(0);
+    }
+
+    .button-icon {
+        font-size: 1.5rem;
+    }
+
+    .result-display {
+        text-align: center;
+        padding: 1rem;
+        border-radius: var(--border-radius);
+        margin-top: 1rem;
+    }
+
+    .result-win {
+        color: var(--primary-color);
+        font-size: 1.5rem;
+        font-weight: bold;
+        animation: celebrate 1s ease infinite;
+    }
+
+    .result-lose {
+        color: var(--text-color);
+        font-size: 1.2rem;
+        opacity: 0.8;
+    }
+
+    @keyframes celebrate {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.1); }
+    }
+
+    @media (max-width: 768px) {
+        .lucky-container {
+            padding: 1rem;
+        }
+
+        .ball {
+            width: 40px;
+            height: 40px;
+            font-size: 1rem;
+        }
+
+        h2 {
+            font-size: 1.5rem;
+        }
+    }
+
+    .draw-count {
+        text-align: center;
+        color: var(--text-color);
+        font-size: 1.1rem;
+        margin-bottom: 1rem;
+        padding: 0.5rem;
+        border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+    }
+
+    #drawCount {
+        color: var(--primary-color);
+        font-weight: bold;
+        font-size: 1.2rem;
+    }
+
+    .prize-amount {
+        display: block;
+        margin-top: 1rem;
+        font-size: 1.8rem;
+        color: #ffd700;
+        text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+        animation: glowing 1.5s ease-in-out infinite;
+    }
+
+    @keyframes glowing {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.8; }
+    }
+
+    /* SweetAlert2 自定義樣式 */
+    .swal2-popup {
+        border: 2px solid var(--primary-color) !important;
+    }
+
+    .swal2-title {
+        color: var(--primary-color) !important;
+        font-size: 2em !important;
+    }
+
+    .swal2-html-container {
+        color: var(--text-color) !important;
+    }
+
+    .swal2-confirm {
+        background: linear-gradient(45deg, var(--primary-color), #e5c100) !important;
+        border: none !important;
+        padding: 1em 2em !important;
+    }
+
+    .swal2-timer-progress-bar {
+        background: var(--primary-color) !important;
+    }
+</style>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // 初始化計數器
+    let drawCount = 0;
+
+    // 中獎獎金規則（根據中獎號碼數量）
+    const prizeRules = {
+        5: 100000,      // 中5個號碼獎金 10萬
+        4: 20000,       // 中4個號碼獎金 2萬
+        3: 1000,        // 中3個號碼獎金 1千
+        2: 400,         // 中2個號碼獎金 400
+        1: 100          // 中1個號碼獎金 100
+    };
+
+    // 獲取最新開獎號碼
+    async function fetchLatestNumbers() {
+        try {
+            const currentDate = new Date();
+            const postData = {
+                draw_type: 2,
+                draw_year: currentDate.getFullYear(),
+                draw_month: currentDate.getMonth() + 1
+            };
+
+            const response = await axios.post('/proxy', postData);
+            if (response.data && response.data.length > 0) {
+                const latestDraw = response.data[0];
+                displayLatestNumbers(latestDraw);
+                return latestDraw;
+            }
+        } catch (error) {
+            console.error('Error fetching latest numbers:', error);
+        }
+    }
+
+    // 顯示最新開獎號碼
+    function displayLatestNumbers(draw) {
+        const regularNumbers = draw.draw_number_appear.slice(0, -1);
+        const specialNumber = draw.draw_number_appear[draw.draw_number_appear.length - 1];
+        
+        document.getElementById('regularNumbers').textContent = regularNumbers.join(', ');
+        document.getElementById('specialNumber').textContent = specialNumber;
+        document.getElementById('drawPeriod').textContent = draw.period;
+        document.getElementById('drawDate').textContent = draw.draw_date;
+    }
+
+    // 生成隨機號碼
+    function generateNumbers() {
+        drawCount++;
+        document.getElementById('drawCount').textContent = drawCount;
+        document.getElementById('resultSection').style.display = 'block';
+
+        const numbers = new Set();
+        while (numbers.size < 5) {
+            numbers.add(Math.floor(Math.random() * 49) + 1);
+        }
+        
+        const numberBalls = document.getElementById('numberBalls');
+        numberBalls.innerHTML = '';
+        
+        Array.from(numbers).forEach(number => {
+            const ball = document.createElement('div');
+            ball.className = 'ball';
+            ball.textContent = number;
+            numberBalls.appendChild(ball);
+        });
+
+        checkWinning(Array.from(numbers));
+    }
+
+    // 檢查中獎
+    async function checkWinning(yourNumbers) {
+        const latestDraw = await fetchLatestNumbers();
+        const winningNumbers = latestDraw.draw_number_appear.slice(0, -1);
+        
+        const matches = yourNumbers.filter(num => winningNumbers.includes(num));
+        const resultSection = document.getElementById('resultSection');
+        const resultDisplay = document.getElementById('resultDisplay');
+        
+        resultSection.style.display = 'block';
+        
+        if (matches.length > 0) {
+            const prize = prizeRules[matches.length] || 0;
+            // 顯示中獎提示
+            Swal.fire({
+                title: '恭喜中獎！',
+                html: `
+                    <div style="font-size: 1.2em; margin-bottom: 1em;">
+                        您對中了 ${matches.length} 個號碼！<br>
+                        中獎號碼：${matches.join(', ')}<br>
+                        <span style="color: #ffd700; font-size: 1.3em; display: block; margin-top: 0.5em;">
+                            獎金：NT$ ${prize.toLocaleString()}
+                        </span>
+                    </div>
+                `,
+                icon: 'success',
+                confirmButtonText: '太棒了！',
+                confirmButtonColor: '#d4af37',
+                background: '#1a1a1a',
+                color: '#ffffff',
+                showConfirmButton: true,
+                timer: 5000,
+                timerProgressBar: true,
+                customClass: {
+                    popup: 'swal-custom-popup',
+                    title: 'swal-custom-title',
+                    content: 'swal-custom-content',
+                    confirmButton: 'swal-custom-confirm'
+                }
+            });
+
+            resultDisplay.innerHTML = `
+                <div class="result-win">
+                    🎉 恭喜！您對中了 ${matches.length} 個號碼！<br>
+                    中獎號碼：${matches.join(', ')}<br>
+                    <span class="prize-amount">
+                        獎金：NT$ ${prize.toLocaleString()}
+                    </span>
+                </div>
+            `;
+        } else {
+            resultDisplay.innerHTML = `
+                <div class="result-lose">
+                    可惜！沒有中獎。<br>
+                    再試一次吧！
+                </div>
+            `;
+        }
+    }
+
+    // 頁面載入時獲取最新開獎號碼
+    document.addEventListener('DOMContentLoaded', fetchLatestNumbers);
+</script>
+{% endblock %} 
