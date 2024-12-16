@@ -1,98 +1,248 @@
-{% extends "base.html" %}
-
-{% block content %}
-<h1>查詢樂透紀錄</h1>
-<form id="lotteryForm">
-    <label for="drawType">開獎類型:</label>
-    <select id="drawType">
-        <option value="2">大樂透</option>
-        <!-- 其他選項 -->
-    </select>
-    <br>
-    <label for="drawYear">年份:</label>
-    <input type="number" id="drawYear" value="2024">
-    <br>
-    <label for="drawMonth">月份:</label>
-    <input type="number" id="drawMonth" value="11">
-    <br>
-    <button type="button" onclick="fetchLotteryData()">執行</button>
-</form>
-
-<div id="resultArea" style="margin-top: 2rem; width: 100%; max-width: 500px;">
-    <table id="resultTable" style="display: none;">
-        <thead>
-            <tr>
-                <th>開獎日期</th>
-                <th>期數</th>
-                <th>開獎號碼</th>
-                <th>特別號</th>
-                <th>兌獎期限</th>
-            </tr>
-        </thead>
-        <tbody id="resultBody"></tbody>
-    </table>
-</div>
-{% endblock %}
-
-{% block scripts %}
-<script>
-    function fetchLotteryData() {
-        const drawType = document.getElementById('drawType').value;
-        const drawYear = document.getElementById('drawYear').value;
-        const drawMonth = document.getElementById('drawMonth').value;
-
-        const postData = {
-            draw_type: parseInt(drawType),
-            draw_year: parseInt(drawYear),
-            draw_month: parseInt(drawMonth)
-        };
-
-        axios.post('/proxy', postData)
-            .then((res) => {
-                displayResults(res.data);
-            })
-            .catch((error) => {
-                console.error('錯誤:', error);
-                alert('請求失敗，請檢查控制台了解詳細信息');
-            });
-    }
-
-    function displayResults(data) {
-        const resultTable = document.getElementById('resultTable');
-        const resultBody = document.getElementById('resultBody');
-        resultBody.innerHTML = '';
-
-        if (Array.isArray(data)) {
-            data.forEach(item => {
-                const row = document.createElement('tr');
-                
-                const dateCell = document.createElement('td');
-                dateCell.textContent = item.draw_date;
-                
-                const periodCell = document.createElement('td');
-                periodCell.textContent = item.period;
-                
-                const numbersCell = document.createElement('td');
-                const regularNumbers = item.draw_number_appear.slice(0, -1);
-                numbersCell.textContent = regularNumbers.join(', ');
-                
-                const specialCell = document.createElement('td');
-                specialCell.textContent = item.draw_number_appear[item.draw_number_appear.length - 1];
-                
-                const redeemCell = document.createElement('td');
-                redeemCell.textContent = item.redeemable_date;
-
-                row.appendChild(dateCell);
-                row.appendChild(periodCell);
-                row.appendChild(numbersCell);
-                row.appendChild(specialCell);
-                row.appendChild(redeemCell);
-                
-                resultBody.appendChild(row);
-            });
-
-            resultTable.style.display = 'table';
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>大樂透查詢</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #4CAF50;
+            --secondary-color: #f0f0f0;
+            --background-color: #ffffff;
+            --text-color: #333333;
+            --border-radius: 8px;
+            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
-    }
-</script>
-{% endblock %}
+
+        body {
+            font-family: 'Microsoft JhengHei', sans-serif;
+            background: var(--background-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1 {
+            color: var(--primary-color);
+            text-align: center;
+            margin-bottom: 2rem;
+            font-size: 2.5rem;
+        }
+
+        #lotteryForm {
+            background: var(--secondary-color);
+            padding: 2rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            width: 100%;
+            max-width: 500px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--primary-color);
+            font-weight: bold;
+        }
+
+        select, input {
+            width: 100%;
+            padding: 0.8rem;
+            margin-bottom: 1.5rem;
+            border: 2px solid var(--primary-color);
+            border-radius: var(--border-radius);
+            background: #ffffff;
+            color: var(--text-color);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        select:focus, input:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.3);
+        }
+
+        button {
+            width: 100%;
+            padding: 1rem;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: var(--border-radius);
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 1rem;
+        }
+
+        button:hover {
+            background: #388E3C;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(76, 175, 80, 0.2);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 2rem;
+        }
+
+        th, td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        tr:hover {
+            background: #f1f1f1;
+        }
+
+        /* RWD 設定 */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            #lotteryForm {
+                padding: 1.5rem;
+            }
+
+            select, input {
+                padding: 0.6rem;
+            }
+
+            button {
+                padding: 0.8rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 1.5rem;
+            }
+
+            #lotteryForm {
+                padding: 1rem;
+            }
+
+            select, input {
+                padding: 0.5rem;
+                margin-bottom: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>查詢樂透紀錄</h1>
+    <form id="lotteryForm">
+        <label for="drawType">開獎類型:</label>
+        <select id="drawType">
+            <option value="2">大樂透</option>
+            <!-- 其他選項 -->
+        </select>
+        <br>
+        <label for="drawYear">年份:</label>
+        <input type="number" id="drawYear" value="2024">
+        <br>
+        <label for="drawMonth">月份:</label>
+        <input type="number" id="drawMonth" value="11">
+        <br>
+        <button type="button" onclick="fetchLotteryData()">執行</button>
+    </form>
+
+    <div id="resultArea" style="margin-top: 2rem; width: 100%; max-width: 500px;">
+        <table id="resultTable" style="display: none;">
+            <thead>
+                <tr>
+                    <th>開獎日期</th>
+                    <th>期數</th>
+                    <th>開獎號碼</th>
+                    <th>特別號</th>
+                    <th>兌獎期限</th>
+                </tr>
+            </thead>
+            <tbody id="resultBody"></tbody>
+        </table>
+    </div>
+
+    <script>
+        function fetchLotteryData() {
+            const drawType = document.getElementById('drawType').value;
+            const drawYear = document.getElementById('drawYear').value;
+            const drawMonth = document.getElementById('drawMonth').value;
+
+            const postData = {
+                draw_type: parseInt(drawType),
+                draw_year: parseInt(drawYear),
+                draw_month: parseInt(drawMonth)
+            };
+
+            axios.post('/proxy', postData)
+                .then((res) => {
+                    displayResults(res.data);
+                })
+                .catch((error) => {
+                    console.error('錯誤:', error);
+                    alert('請求失敗，請檢查控制台了解詳細信息');
+                });
+        }
+
+        function displayResults(data) {
+            const resultTable = document.getElementById('resultTable');
+            const resultBody = document.getElementById('resultBody');
+            resultBody.innerHTML = '';
+
+            if (Array.isArray(data)) {
+                data.forEach(item => {
+                    const row = document.createElement('tr');
+                    
+                    const dateCell = document.createElement('td');
+                    dateCell.textContent = item.draw_date;
+                    
+                    const periodCell = document.createElement('td');
+                    periodCell.textContent = item.period;
+                    
+                    const numbersCell = document.createElement('td');
+                    numbersCell.textContent = item.draw_number_appear.slice(0, 6).join(', ');
+                    
+                    const specialCell = document.createElement('td');
+                    specialCell.textContent = item.draw_number_appear[6];
+                    
+                    const redeemCell = document.createElement('td');
+                    redeemCell.textContent = item.redeemable_date;
+
+                    row.appendChild(dateCell);
+                    row.appendChild(periodCell);
+                    row.appendChild(numbersCell);
+                    row.appendChild(specialCell);
+                    row.appendChild(redeemCell);
+                    
+                    resultBody.appendChild(row);
+                });
+
+                resultTable.style.display = 'table';
+            }
+        }
+    </script>
+</body>
+</html>
