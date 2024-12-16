@@ -22,5 +22,25 @@ def proxy():
     response = requests.post(URL, json=request.json, headers=headers)
     return jsonify(response.json())
 
+@app.route('/history')
+def history():
+    return render_template('history.html')
+
+@app.route('/about')
+def about():
+    return render_template('about.html')
+
+@app.route('/privacy')
+def privacy():
+    return render_template('privacy.html')
+
+@app.route('/terms')
+def terms():
+    return render_template('terms.html')
+
+@app.route('/lucky')
+def lucky():
+    return render_template('lucky.html')
+
 if __name__ == '__main__':
     app.run(debug=True)
